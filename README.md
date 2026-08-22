@@ -16,7 +16,7 @@
 ## 👋 Sobre mí
 
 Soy estudiante de Ingeniería de Sistemas, interesado en desarrollo de videojuegos,
-desarrollo web e IoT. Este repositorio reúne los prototipos jugables que construí
+desarrollo web y ciberseguridad. Este repositorio reúne los prototipos jugables que construí
 durante las primeras semanas de la asignatura: la mayoría explora educación
 ambiental (agua, reciclaje, cuidado animal) y concientización social (bullying),
 con mecánicas simples de arcade y gestión. Como jugador, Dota 2 es una referencia
