@@ -30,16 +30,14 @@ constante en cómo pienso el diseño de sistemas y balance de mecánicas.
 
 ## 🕹️ Galería de juegos
 
-| Juego | Género | Tecnología | Jugar | Código |
+| Juego | Vista previa | Género | Tecnología | Jugar / Código |
 |---|---|---|---|---|
-| **¡Ahórralo, Rubén!** | Platformer | JS Canvas | [▶ Jugar](juegos/juego1_!ahorralo_Ruben!/index.html) | [README](juegos/juego1_!ahorralo_Ruben!/README.md) |
-| **FreshFlow** | Management / Tycoon | JS | [▶ Jugar](juegos/juego2_fresh_flow/index.html) | [README](juegos/juego2_fresh_flow/README.md) |
-| **EcoSwipe** | Arcade / Clasificación | JS | [▶ Jugar](juegos/juego3_ecoswipe/index.html) | [README](juegos/juego3_ecoswipe/README.md) |
-| **EducaPet** | Simulation | JS | [▶ Jugar](juegos/juego4_educapet/index.html) | [README](juegos/juego4_educapet/README.md) |
-| **Elevador Lunar** | Shooter / Educativo | JS Canvas | [▶ Jugar](juegos/juego5_elevador_lunar/index.html) | [README](juegos/juego5_elevador_lunar/README.md) |
-| **Bully Redention** | Visual Novel | JS | [▶ Jugar](juegos/juego6_bully_redention/index.html) | [README](juegos/juego6_bully_redention/README.md) |
-
-*(Agrega una captura o GIF por fila cuando tengas los assets en `assets/gifs/`.)*
+| **¡Ahórralo, Rubén!** | <img src="assets/gifs/juego1_ahorralo_ruben.gif" width="200"> | Platformer | JS Canvas | [▶ Jugar](juegos/juego1_!ahorralo_Ruben!/index.html) · [README](juegos/juego1_!ahorralo_Ruben!/README.md) |
+| **FreshFlow** | <img src="assets/gifs/juego2_freshflow.gif" width="200"> | Management / Tycoon | JS | [▶ Jugar](juegos/juego2_fresh_flow/index.html) · [README](juegos/juego2_fresh_flow/README.md) |
+| **EcoSwipe** | <img src="assets/gifs/juego3_ecoswipe.gif" width="200"> | Arcade / Clasificación | JS | [▶ Jugar](juegos/juego3_ecoswipe/index.html) · [README](juegos/juego3_ecoswipe/README.md) |
+| **EducaPet** | <img src="assets/gifs/juego4_educapet.gif" width="200"> | Simulation | JS | [▶ Jugar](juegos/juego4_educapet/index.html) · [README](juegos/juego4_educapet/README.md) |
+| **Elevador Lunar** | <img src="assets/gifs/juego5_elevador_lunar.gif" width="200"> | Shooter / Educativo | JS Canvas | [▶ Jugar](juegos/juego5_elevador_lunar/index.html) · [README](juegos/juego5_elevador_lunar/README.md) |
+| **Bully Redention** | <img src="assets/gifs/juego6_bully_redention.gif" width="200"> | Visual Novel | JS | [▶ Jugar](juegos/juego6_bully_redention/index.html) · [README](juegos/juego6_bully_redention/README.md) |
 
 ---
 
