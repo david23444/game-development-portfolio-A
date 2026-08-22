@@ -1,39 +1,64 @@
 # 🎮 EcoSwipe
 
 ## Descripción
-En el centro de la pantalla aparece una tarjeta con la imagen de un residuo.
-El jugador debe deslizarla en la dirección correcta según el tipo de material.
 
-**Objetivo del jugador:** clasificar correctamente la mayor cantidad de tarjetas
-posible antes de quedarse sin vidas.
-**Mecánica principal:** swipe direccional bajo presión de tiempo —
-arriba = plástico, derecha = papel, izquierda = vidrio/orgánico, abajo = general.
-Clasificar bien pasa a la siguiente tarjeta; clasificar mal resta una vida.
+**EcoSwipe** es un juego arcade de clasificación rápida en el que el jugador debe identificar distintos tipos de residuos y reaccionar mediante movimientos direccionales.
+
+Cada tarjeta representa un residuo y el jugador debe enviarla al contenedor correspondiente antes de perder sus vidas.
+
+**Objetivo del jugador:**
+Conseguir la mayor puntuación posible clasificando correctamente los residuos y manteniendo la partida activa.
+
+**Mecánica principal:**
+Deslizar cada tarjeta en la dirección adecuada según su tipo de material. Los aciertos permiten avanzar, mientras que los errores reducen las vidas disponibles.
 
 ## Género
-Arcade / Reflejos (clasificación)
+
+**Arcade / Roguelite educativo**
 
 ## Tecnología
-HTML + CSS + JavaScript vanilla
+
+* HTML
+* CSS
+* JavaScript Vanilla
 
 ## Controles
-| Tecla / Acción | Efecto |
-|---|---|
-| Swipe arriba / ↑ | Clasificar como plástico |
-| Swipe derecha / → | Clasificar como papel |
-| Swipe izquierda / ← | Clasificar como vidrio / orgánico |
-| Swipe abajo / ↓ | Clasificar como basura general |
+
+| Tecla / Acción      | Efecto            |
+| ------------------- | ----------------- |
+| Swipe arriba / ↑    | Plástico          |
+| Swipe derecha / →   | Papel             |
+| Swipe izquierda / ← | Vidrio / Orgánico |
+| Swipe abajo / ↓     | Basura general    |
 
 ## Capturas de pantalla
-![pantalla inicial](../../assets/capturas/juego3_inicio.png)
-![gameplay](../../assets/capturas/juego3_gameplay.png)
 
-## Apoyo de IA
-Describe brevemente qué partes usaste con apoyo de IA (assets, brainstorming de mecánicas, debugging) y qué hiciste tú.
+### Pantalla inicial
 
-## Qué aprendí / qué mejoraría
-- **Aprendí:** ...
-- **Mejoraría:** ...
+![Pantalla inicial](../../assets/capturas/juego3_inicio.png)
 
-## Jugar
+### Gameplay
+
+![Gameplay](../../assets/capturas/juego3_gameplay.png)
+
+## 🤖 Apoyo de IA
+
+La IA se utilizó como herramienta de apoyo durante la programación del prototipo, principalmente para generar, organizar y ajustar el código en **HTML, CSS y JavaScript**.
+
+La idea del juego, su temática y la mecánica de clasificación fueron planteadas y definidas por nosotros, utilizando la IA posteriormente para convertir la propuesta en una experiencia funcional.
+
+## 📚 Qué aprendí
+
+Con este proyecto aprendí a trabajar con una mecánica más rápida y repetitiva, buscando que las acciones del jugador sean sencillas de entender pero suficientemente dinámicas para mantener su atención.
+
+También exploré cómo combinar una mecánica arcade con un propósito educativo sin que el juego pierda su aspecto entretenido.
+
+## 🔧 Qué mejoraría
+
+Me gustaría llevar el juego hacia una experiencia **más dinámica y adictiva**, incorporando poderes, mejoras y eventos especiales que cambien la forma de jugar durante la partida.
+
+También añadiría más variedad de residuos, efectos visuales, animaciones y sistemas de progresión que hagan que cada partida se sienta diferente y motiven al jugador a seguir intentando conseguir una puntuación mayor.
+
+## 🕹️ Jugar
+
 👉 [Abrir juego](index.html)
