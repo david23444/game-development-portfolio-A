@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EcoSwipe: Misión Eco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+    :root{
+      --verde:#4CAF8E;
+      --verde-bg:#DFF6EC;
+      --amarillo:#F5C242;
+      --amarillo-bg:#FFF6DC;
+      --azul:#4A90D9;
+      --azul-bg:#E3F0FC;
+      --gris:#8B93A1;
+      --gris-bg:#EDEFF2;
+      --bg:#F7F8FC;
+      --card-bg:#FFFFFF;
+      --text-dark:#33394A;
+      --ok:#4CAF8E;
+      --err:#EF5A6F;
+      --hielo:#5CD6F0;
+      --racha-bg-1: #EAF7F1;
+      --racha-bg-2: #F7F8FC;
+    }
+    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+    html,body{
+      margin:0; padding:0; width:100%; height:100%;
+      font-family:'Varela Round', sans-serif;
+      color:var(--text-dark);
+      overflow:hidden;
+      touch-action:none;
+    }
+
+    /* ---------- FONDO DINÁMICO POR RACHA ---------- */
+    body{
+      background:linear-gradient(160deg, var(--racha-bg-1), var(--racha-bg-2));
+      transition: background 0.5s ease;
+    }
+    body.combo-mid{
+      --racha-bg-1:#BFF2FF;
+      --racha-bg-2:#59C9F5;
+    }
+    body.combo-fire{
+      --racha-bg-1:#FF5CA8;
+      --racha-bg-2:#8B2CF5;
+      animation: firePulse 1.1s ease-in-out infinite;
+    }
+    @keyframes firePulse{
+      0%,100%{ filter:brightness(1); }
+      50%{ filter:brightness(1.18); }
+    }
+
+    /* ---------- LAYOUT PRINCIPAL ---------- */
+    #game-wrapper{
+      position:relative;
+      width:100%;
+      height:100vh;
+      height:100dvh;
+      display:grid;
+      grid-template-columns: 80px 1fr 80px;
+      grid-template-rows: auto auto 70px minmax(0,1fr) 70px;
+      grid-template-areas:
+        "banner banner banner"
+        "hud hud hud"
+        "paper paper paper"
+        "left center right"
+        "bottom bottom bottom";
+      gap:8px;
+      padding:8px;
+      max-width:900px;
+      margin:0 auto;
+    }
+
+    /* ---------- BANNER / TÍTULO DEL JUEGO ---------- */
+    #title-banner{
+      grid-area: banner;
+      display:flex;
+      justify-content:center;
+      padding-top:2px;
+    }
+    #title-badge{
+      font-family:'Baloo 2', 'Varela Round', sans-serif;
+      font-weight:800;
+      font-size:1.1rem;
+      letter-spacing:0.5px;
+      color:#fff;
+      background:linear-gradient(135deg, var(--verde), var(--azul));
+      padding:4px 18px;
+      border-radius:50px;
+      box-shadow:0 4px 12px rgba(74,144,217,0.35);
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    /* ---------- HUD SUPERIOR (Estado del juego) ---------- */
+    #hud{
+      grid-area: hud;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      padding:2px 4px;
+      z-index:5;
+    }
+    #hud-stats{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:4px 8px;
+      background:var(--card-bg);
+      border-radius:12px;
+      padding:6px 10px;
+      box-shadow:0 4px 12px rgba(50,60,90,0.08);
+    }
+    .stat{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      line-height:1.1;
+    }
+    .stat .stat-label{
+      font-size:0.58rem;
+      font-weight:700;
+      color:var(--gris);
+      letter-spacing:0.5px;
+    }
+    .stat .stat-value{
+      font-size:0.95rem;
+      font-weight:700;
+    }
+    #stat-level .stat-value{ color:var(--verde); }
+    #stat-score .stat-value{ color:var(--azul); }
+    #stat-target .stat-value{ color:var(--gris); font-size:0.8rem; }
+    #stat-combo .stat-value{ color:#E07A2A; }
+    #stat-lives .stat-value{ font-size:1rem; letter-spacing:1px; }
+
+    #timer-bar-container{
+      width:100%;
+      height:8px;
+      background:#E1E3EA;
+      border-radius:6px;
+      overflow:hidden;
+    }
+    #timer-bar{
+      height:100%;
+      width:100%;
+      background:linear-gradient(90deg, var(--verde), var(--amarillo));
+      border-radius:6px;
+      transition:width 0.05s linear, background 0.3s;
+    }
+
+    /* ---------- ZONAS DE SOLTAR ---------- */
+    .drop-zone{
+      border-radius:16px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      font-weight:700;
+      font-size:0.75rem;
+      text-align:center;
+      transition:transform 0.15s, box-shadow 0.15s, filter 0.15s;
+      padding:4px;
+    }
+    .drop-zone .z-emoji{ font-size:1.5rem; }
+    .drop-zone.active{
+      transform:scale(1.06);
+      box-shadow:0 0 0 4px rgba(0,0,0,0.06) inset;
+      filter:brightness(1.08);
+    }
+
+    #zone-paper{
+      grid-area: paper;
+      background:var(--azul-bg);
+      color:var(--azul);
+      flex-direction: row;
+      gap: 8px;
+    }
+    #zone-paper .z-emoji{ font-size: 1.3rem; }
+
+    #zone-glass{
+      grid-area: left;
+      background:var(--verde-bg);
+      color:var(--verde);
+    }
+    #zone-plastic{
+      grid-area: right;
+      background:var(--amarillo-bg);
+      color:#9C7A12;
+    }
+    #zone-general{
+      grid-area: bottom;
+      background:var(--gris-bg);
+      color:var(--gris);
+      flex-direction: row;
+      gap: 8px;
+      height: 100%;
+    }
+    #zone-general .z-emoji{ font-size: 1.3rem; }
+
+    /* ---------- CENTRO / CARTA ---------- */
+    #center-area{
+      grid-area: center;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:0;
+    }
+
+    #waste-card{
+      width:min(48vw, 210px);
+      height:min(48vw, 210px);
+      background:var(--card-bg);
+      border-radius:24px;
+      box-shadow: 0 10px 30px rgba(50,60,90,0.18);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      cursor:grab;
+      position:absolute;
+      touch-action:none;
+      will-change:transform;
+      z-index:10;
+      border:3px solid #fff;
+      padding:10px;
+    }
+    #waste-card:active{ cursor:grabbing; }
+    #waste-card .w-emoji{
+      font-size:min(12vw, 56px);
+      line-height:1;
+    }
+    #waste-card .w-name{
+      font-size:min(5vw, 1.2rem);
+      font-weight:800;
+      color:var(--text-dark);
+      text-align:center;
+      padding:4px 10px;
+      background:var(--gris-bg);
+      border-radius:10px;
+      line-height:1.15;
+    }
+
+    /* Carta Helada (power-up) */
+    #waste-card.frozen-card{
+      border:3px solid var(--hielo);
+      box-shadow: 0 0 0 6px rgba(92,214,240,0.25), 0 10px 30px rgba(50,60,90,0.18);
+    }
+    #waste-card .freeze-badge{
+      position:absolute;
+      top:-10px;
+      right:-10px;
+      background:var(--hielo);
+      color:#fff;
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1rem;
+      box-shadow:0 4px 10px rgba(92,214,240,0.5);
+      display:none;
+    }
+    #waste-card.frozen-card .freeze-badge{ display:flex; }
+
+    #freeze-overlay{
+      position:absolute;
+      inset:0;
+      background:rgba(92,214,240,0.15);
+      border-radius:24px;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:4px;
+      z-index:15;
+      font-weight:800;
+      color:#1A7A96;
+      text-align:center;
+    }
+    #freeze-overlay.show{ display:flex; }
+    #freeze-overlay .fo-emoji{ font-size:2rem; }
+
+    /* Feedback flotante */
+    #feedback{
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%) scale(0.6);
+      font-size:1.6rem;
+      font-weight:700;
+      opacity:0;
+      pointer-events:none;
+      z-index:20;
+      padding:8px 18px;
+      border-radius:16px;
+      white-space:nowrap;
+    }
+    #feedback.show{
+      animation: popFeedback 0.6s ease forwards;
+    }
+    #feedback.ok{ background:rgba(76,175,142,0.95); color:#fff; }
+    #feedback.err{ background:rgba(239,90,111,0.95); color:#fff; }
+    @keyframes popFeedback{
+      0%{ opacity:0; transform:translate(-50%,-50%) scale(0.5); }
+      30%{ opacity:1; transform:translate(-50%,-50%) scale(1.15); }
+      50%{ transform:translate(-50%,-50%) scale(1); }
+      100%{ opacity:0; transform:translate(-50%,-80%) scale(1); }
+    }
+
+    #combo-multiplier{
+      position:absolute;
+      top:28%; left:50%;
+      transform:translate(-50%,-50%) scale(0.5);
+      font-size:1.5rem;
+      font-weight:800;
+      color:#fff;
+      text-shadow:0 0 10px rgba(255,140,0,0.9), 0 2px 4px rgba(0,0,0,0.25);
+      opacity:0;
+      pointer-events:none;
+      z-index:21;
+      white-space:nowrap;
+    }
+    #combo-multiplier.show{
+      animation: popMultiplier 0.9s ease forwards;
+    }
+    @keyframes popMultiplier{
+      0%{ opacity:0; transform:translate(-50%,-30%) scale(0.4) rotate(-6deg); }
+      35%{ opacity:1; transform:translate(-50%,-60%) scale(1.25) rotate(4deg); }
+      60%{ transform:translate(-50%,-55%) scale(1) rotate(0deg); }
+      100%{ opacity:0; transform:translate(-50%,-90%) scale(1); }
+    }
+
+    /* ---------- MODALES ---------- */
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(30,35,50,0.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:100;
+      padding:20px;
+    }
+    .modal-overlay.hidden{ display:none; }
+    .modal-box{
+      background:var(--card-bg);
+      border-radius:24px;
+      padding:28px 22px;
+      max-width:340px;
+      width:100%;
+      text-align:center;
+      box-shadow:0 20px 50px rgba(0,0,0,0.25);
+    }
+    .modal-box h1{
+      font-family:'Baloo 2', 'Varela Round', sans-serif;
+      font-size:1.5rem;
+      margin:0 0 4px;
+      color:var(--verde);
+    }
+    .modal-box h2{
+      font-size:1.2rem;
+      margin:0 0 8px;
+      color:var(--err);
+    }
+    .modal-box h2.win{ color:var(--verde); }
+    .modal-box p{
+      font-size:0.9rem;
+      color:#666e80;
+      line-height:1.4;
+      margin:0 0 14px;
+    }
+    .modal-box .final-score{
+      font-size:2rem;
+      font-weight:700;
+      color:var(--azul);
+      margin-bottom:14px;
+    }
+    .level-summary{
+      display:flex;
+      justify-content:center;
+      gap:18px;
+      margin-bottom:18px;
+    }
+    .level-summary .ls-item{ display:flex; flex-direction:column; align-items:center; }
+    .level-summary .ls-label{ font-size:0.65rem; color:var(--gris); font-weight:700; }
+    .level-summary .ls-value{ font-size:1.2rem; font-weight:800; color:var(--verde); }
+    .legend{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+      font-size:0.8rem;
+    }
+    .legend span{ display:block; font-size:1.2rem; }
+    .btn-main{
+      background:var(--verde);
+      color:#fff;
+      border:none;
+      padding:12px 26px;
+      border-radius:50px;
+      font-family:inherit;
+      font-size:1rem;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 6px 16px rgba(76,175,142,0.35);
+      transition:transform 0.15s;
+    }
+    .btn-main:active{ transform:scale(0.95); }
+    .btn-main.next-level{ background:var(--azul); box-shadow:0 6px 16px rgba(74,144,217,0.35); }
+
+    @media (min-width:700px){
+      #game-wrapper{ grid-template-rows: auto auto 80px minmax(0,1fr) 80px; }
+      .drop-zone .z-emoji{ font-size:2rem; }
+      .drop-zone{ font-size:0.9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+
+  <!-- BANNER / TÍTULO -->
+  <div id="title-banner">
+    <div id="title-badge">♻️ EcoSwipe</div>
+  </div>
+
+  <!-- HUD SUPERIOR: Nivel, Score, Target, Combo, Vidas -->
+  <div id="hud">
+    <div id="hud-stats">
+      <div class="stat" id="stat-level">
+        <span class="stat-label">LEVEL</span>
+        <span class="stat-value" id="val-level">1</span>
+      </div>
+      <div class="stat" id="stat-score">
+        <span class="stat-label">SCORE</span>
+        <span class="stat-value" id="val-score">0</span>
+      </div>
+      <div class="stat" id="stat-target">
+        <span class="stat-label">TARGET</span>
+        <span class="stat-value" id="val-target">500</span>
+      </div>
+      <div class="stat" id="stat-combo">
+        <span class="stat-label">COMBO</span>
+        <span class="stat-value" id="val-combo">0</span>
+      </div>
+      <div class="stat" id="stat-lives" style="grid-column: span 2;">
+        <span class="stat-label">LIVES</span>
+        <span class="stat-value" id="val-lives">❤️❤️❤️</span>
+      </div>
+    </div>
+    <div id="timer-bar-container">
+      <div id="timer-bar"></div>
+    </div>
+  </div>
+
+  <!-- ZONAS DE SOLTAR -->
+  <div class="drop-zone" id="zone-paper" data-tipo="papel">
+    <span class="z-emoji">📦</span>
+    <span>PAPEL</span>
+  </div>
+  <div class="drop-zone" id="zone-glass" data-tipo="vidrio">
+    <span class="z-emoji">🍾</span>
+    <span>VIDRIO</span>
+  </div>
+  <div class="drop-zone" id="zone-plastic" data-tipo="plastico">
+    <span class="z-emoji">🥤</span>
+    <span>PLÁSTICO</span>
+  </div>
+  <div class="drop-zone" id="zone-general" data-tipo="general">
+    <span class="z-emoji">🗑️</span>
+    <span>GENERAL</span>
+  </div>
+
+  <!-- CENTRO: CARTA -->
+  <div id="center-area">
+    <div id="waste-card">
+      <div class="freeze-badge">⏱️</div>
+      <div class="w-emoji" id="w-emoji">🥤</div>
+      <div class="w-name" id="w-name">Vaso</div>
+      <div id="freeze-overlay">
+        <div class="fo-emoji">❄️</div>
+        <div>¡CONGELADO!</div>
+      </div>
+    </div>
+    <div id="feedback"></div>
+    <div id="combo-multiplier">¡X2 PUNTOS!</div>
+  </div>
+
+</div>
+
+<!-- MODAL: INICIO -->
+<div class="modal-overlay" id="modal-start">
+  <div class="modal-box">
+    <h1>♻️ EcoSwipe</h1>
+    <p>Arrastra cada residuo hacia el contenedor correcto antes de que se acabe el tiempo. ¡Sube de nivel y forma rachas para multiplicar tu puntaje!</p>
+    <div class="legend">
+      <div><span>📦</span>Papel (arriba)</div>
+      <div><span>🍾</span>Vidrio (izq.)</div>
+      <div><span>🥤</span>Plástico (der.)</div>
+      <div><span>🗑️</span>General (abajo)</div>
+    </div>
+    <button class="btn-main" id="btn-start">EMPEZAR</button>
+  </div>
+</div>
+
+<!-- MODAL: NIVEL COMPLETADO -->
+<div class="modal-overlay hidden" id="modal-level">
+  <div class="modal-box">
+    <h2 class="win">🎉 ¡NIVEL COMPLETADO!</h2>
+    <p>¡Excelente clasificación! Estás listo para el siguiente reto.</p>
+    <div class="level-summary">
+      <div class="ls-item">
+        <span class="ls-label">SCORE</span>
+        <span class="ls-value" id="level-summary-score">0</span>
+      </div>
+      <div class="ls-item">
+        <span class="ls-label">MEJOR COMBO</span>
+        <span class="ls-value" id="level-summary-combo">0</span>
+      </div>
+    </div>
+    <button class="btn-main next-level" id="btn-next-level">SIGUIENTE NIVEL</button>
+  </div>
+</div>
+
+<!-- MODAL: GAME OVER -->
+<div class="modal-overlay hidden" id="modal-over">
+  <div class="modal-box">
+    <h2>💥 Relleno colapsado</h2>
+    <p>Se acabaron tus vidas. ¡Buen intento clasificando!</p>
+    <div class="final-score" id="final-score">0</div>
+    <button class="btn-main" id="btn-retry">REINTENTAR</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     1. DATOS: RESIDUOS DISPONIBLES POR CATEGORÍA
+  ============================================================ */
+  const RESIDUOS = [
+    // VIDRIO
+    { id:'botella_vidrio', tipo:'vidrio', emoji:'🍾', nombre:'Botella de vidrio' },
+    { id:'frasco', tipo:'vidrio', emoji:'🫙', nombre:'Frasco de conserva' },
+    { id:'copa', tipo:'vidrio', emoji:'🥂', nombre:'Copa rota' },
+    // PLÁSTICO
+    { id:'vaso_plastico', tipo:'plastico', emoji:'🥤', nombre:'Vaso plástico' },
+    { id:'botella_plastico', tipo:'plastico', emoji:'🧴', nombre:'Botella plástica' },
+    { id:'bolsa', tipo:'plastico', emoji:'🛍️', nombre:'Bolsa plástica' },
+    // PAPEL
+    { id:'periodico', tipo:'papel', emoji:'📰', nombre:'Periódico' },
+    { id:'caja', tipo:'papel', emoji:'📦', nombre:'Caja de cartón' },
+    { id:'libro', tipo:'papel', emoji:'📖', nombre:'Libro viejo' },
+    // GENERAL
+    { id:'manzana', tipo:'general', emoji:'🍎', nombre:'Resto de manzana' },
+    { id:'panal', tipo:'general', emoji:'🧷', nombre:'Pañal usado' },
+    { id:'colilla', tipo:'general', emoji:'🚬', nombre:'Colilla de cigarro' },
+  ];
+
+  /* Probabilidad de que la carta generada sea una "Carta Helada" (power-up) */
+  const FREEZE_CARD_CHANCE = 0.10;
+  const FREEZE_PAUSE_MS = 5000;
+
+  /* Umbral de racha para activar el multiplicador X2 */
+  const COMBO_MULTIPLIER_THRESHOLD = 5;
+  /* Racha que otorga curación extra (además de al pasar de nivel) */
+  const COMBO_HEAL_THRESHOLD = 10;
+
+  const MAX_LIVES = 3;
+  const BASE_TIME_LIMIT = 4000;   // ms, tiempo por carta en el nivel 1
+  const TIME_DECAY_PER_LEVEL = 300; // ms que se resta por cada nivel
+  const MIN_TIME_LIMIT = 1800;    // CAP: nunca por debajo de esto
+
+  /* ============================================================
+     2. ESTADO DEL JUEGO
+  ============================================================ */
+  const state = {
+    level: 1,
+    score: 0,
+    lives: MAX_LIVES,
+    combo: 0,
+    bestComboThisLevel: 0,
+    currentWaste: null,
+    isFrozenCard: false,
+    timeLimit: BASE_TIME_LIMIT,
+    timeLeft: BASE_TIME_LIMIT,
+    timerInterval: null,
+    isDragging: false,
+    dragStartX: 0,
+    dragStartY: 0,
+    cardOffsetX: 0,
+    cardOffsetY: 0,
+    isRunning: false,
+    healedAtCombo10: false, // evita curar más de una vez por racha de 10
+  };
+
+  /* ============================================================
+     3. REFERENCIAS DOM
+  ============================================================ */
+  const el = {
+    body: document.body,
+    valLevel: document.getElementById('val-level'),
+    valScore: document.getElementById('val-score'),
+    valTarget: document.getElementById('val-target'),
+    valCombo: document.getElementById('val-combo'),
+    valLives: document.getElementById('val-lives'),
+    timerBar: document.getElementById('timer-bar'),
+    card: document.getElementById('waste-card'),
+    emoji: document.getElementById('w-emoji'),
+    name: document.getElementById('w-name'),
+    feedback: document.getElementById('feedback'),
+    comboMultiplierText: document.getElementById('combo-multiplier'),
+    freezeOverlay: document.getElementById('freeze-overlay'),
+    zones: {
+      papel: document.getElementById('zone-paper'),
+      vidrio: document.getElementById('zone-glass'),
+      plastico: document.getElementById('zone-plastic'),
+      general: document.getElementById('zone-general'),
+    },
+    modalStart: document.getElementById('modal-start'),
+    modalLevel: document.getElementById('modal-level'),
+    modalOver: document.getElementById('modal-over'),
+    finalScore: document.getElementById('final-score'),
+    levelSummaryScore: document.getElementById('level-summary-score'),
+    levelSummaryCombo: document.getElementById('level-summary-combo'),
+    btnStart: document.getElementById('btn-start'),
+    btnNextLevel: document.getElementById('btn-next-level'),
+    btnRetry: document.getElementById('btn-retry'),
+  };
+
+  /* ============================================================
+     4. UTILIDADES DE NIVEL / DIFICULTAD
+  ============================================================ */
+  // Puntaje objetivo para pasar cada nivel: 500, 1200, 2000, y luego +1000 por nivel
+  function targetForLevel(level){
+    if (level === 1) return 500;
+    if (level === 2) return 1200;
+    if (level === 3) return 2000;
+    return 2000 + (level - 3) * 1000;
+  }
+
+  // Tiempo por carta según el nivel, respetando el CAP mínimo de 1.8s
+  function timeLimitForLevel(level){
+    const raw = BASE_TIME_LIMIT - (level - 1) * TIME_DECAY_PER_LEVEL;
+    return Math.max(MIN_TIME_LIMIT, raw);
+  }
+
+  function randomWaste(){
+    // Evita repetir el mismo residuo dos veces seguidas
+    let next;
+    do {
+      next = RESIDUOS[Math.floor(Math.random() * RESIDUOS.length)];
+    } while (state.currentWaste && next.id === state.currentWaste.id);
+    return next;
+  }
+
+  /* ============================================================
+     5. HUD / VISUALES
+  ============================================================ */
+  function updateHUD(){
+    el.valLevel.textContent = state.level;
+    el.valScore.textContent = state.score;
+    el.valTarget.textContent = targetForLevel(state.level);
+    el.valCombo.textContent = state.combo;
+    el.valLives.textContent = '❤️'.repeat(Math.max(state.lives, 0)) + '🖤'.repeat(Math.max(MAX_LIVES - state.lives, 0));
+    updateComboBackground();
+  }
+
+  // Fondo dinámico según la racha actual
+  function updateComboBackground(){
+    el.body.classList.remove('combo-mid', 'combo-fire');
+    if (state.combo >= 10){
+      el.body.classList.add('combo-fire');
+    } else if (state.combo >= 5){
+      el.body.classList.add('combo-mid');
+    }
+  }
+
+  function showFeedback(text, type){
+    el.feedback.textContent = text;
+    el.feedback.classList.remove('show', 'ok', 'err');
+    void el.feedback.offsetWidth; // reinicia animación
+    el.feedback.classList.add(type, 'show');
+  }
+
+  function showComboMultiplierFX(){
+    el.comboMultiplierText.classList.remove('show');
+    void el.comboMultiplierText.offsetWidth; // reinicia animación
+    el.comboMultiplierText.classList.add('show');
+  }
+
+  /* ============================================================
+     6. CARTA: RENDER Y RESET DE POSICIÓN
+  ============================================================ */
+  function renderCard(){
+    state.currentWaste = randomWaste();
+    state.isFrozenCard = Math.random() < FREEZE_CARD_CHANCE;
+
+    el.emoji.textContent = state.currentWaste.emoji;
+    el.name.textContent = state.currentWaste.nombre;
+    el.card.classList.toggle('frozen-card', state.isFrozenCard);
+
+    resetCardPosition(true);
+  }
+
+  function resetCardPosition(animate){
+    el.card.style.transition = animate ? 'transform 0.25s cubic-bezier(.2,.8,.3,1.2)' : 'none';
+    el.card.style.transform = 'translate(0px, 0px) scale(1)';
+    state.cardOffsetX = 0;
+    state.cardOffsetY = 0;
+    clearZoneHighlights();
+  }
+
+  /* ============================================================
+     7. TEMPORIZADOR
+  ============================================================ */
+  function startTimer(){
+    clearInterval(state.timerInterval);
+    state.timeLeft = state.timeLimit;
+    updateTimerBar();
+    const tickMs = 50;
+    state.timerInterval = setInterval(() => {
+      state.timeLeft -= tickMs;
+      if (state.timeLeft <= 0){
+        state.timeLeft = 0;
+        updateTimerBar();
+        clearInterval(state.timerInterval);
+        handleResult(false); // tiempo agotado = error
+      } else {
+        updateTimerBar();
+      }
+    }, tickMs);
+  }
+
+  function updateTimerBar(){
+    const pct = Math.max(0, (state.timeLeft / state.timeLimit) * 100);
+    el.timerBar.style.width = pct + '%';
+    if (pct > 50){
+      el.timerBar.style.background = 'linear-gradient(90deg, var(--verde), var(--amarillo))';
+    } else if (pct > 20){
+      el.timerBar.style.background = 'var(--amarillo)';
+    } else {
+      el.timerBar.style.background = 'var(--err)';
+    }
+  }
+
+  /* ============================================================
+     8. LÓGICA DE ARRASTRE (MOUSE + TOUCH)
+  ============================================================ */
+  function getPoint(e){
+    if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function onDragStart(e){
+    if (!state.isRunning) return;
+    state.isDragging = true;
+    const p = getPoint(e);
+    state.dragStartX = p.x;
+    state.dragStartY = p.y;
+    el.card.style.transition = 'none';
+  }
+
+  function onDragMove(e){
+    if (!state.isDragging) return;
+    e.preventDefault();
+    const p = getPoint(e);
+    const dx = p.x - state.dragStartX;
+    const dy = p.y - state.dragStartY;
+    state.cardOffsetX = dx;
+    state.cardOffsetY = dy;
+    const rotate = dx * 0.04;
+    el.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotate}deg)`;
+    highlightZone(dx, dy);
+  }
+
+  function onDragEnd(e){
+    if (!state.isDragging) return;
+    state.isDragging = false;
+
+    const dx = state.cardOffsetX;
+    const dy = state.cardOffsetY;
+    const THRESHOLD = 90;
+
+    let direction = null;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > THRESHOLD) direction = 'plastico';
+      else if (dx < -THRESHOLD) direction = 'vidrio';
+    } else {
+      if (dy < -THRESHOLD) direction = 'papel';
+      else if (dy > THRESHOLD) direction = 'general';
+    }
+
+    clearZoneHighlights();
+
+    if (direction){
+      const correct = direction === state.currentWaste.tipo;
+      handleResult(correct, direction);
+    } else {
+      resetCardPosition(true);
+    }
+  }
+
+  function highlightZone(dx, dy){
+    clearZoneHighlights();
+    const THRESHOLD = 60;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > THRESHOLD) el.zones.plastico.classList.add('active');
+      else if (dx < -THRESHOLD) el.zones.vidrio.classList.add('active');
+    } else {
+      if (dy < -THRESHOLD) el.zones.papel.classList.add('active');
+      else if (dy > THRESHOLD) el.zones.general.classList.add('active');
+    }
+  }
+
+  function clearZoneHighlights(){
+    Object.values(el.zones).forEach(z => z.classList.remove('active'));
+  }
+
+  /* Listeners: Mouse */
+  el.card.addEventListener('mousedown', onDragStart);
+  window.addEventListener('mousemove', onDragMove);
+  window.addEventListener('mouseup', onDragEnd);
+
+  /* Listeners: Touch */
+  el.card.addEventListener('touchstart', onDragStart, { passive:true });
+  window.addEventListener('touchmove', onDragMove, { passive:false });
+  window.addEventListener('touchend', onDragEnd);
+
+  /* ============================================================
+     9. RESULTADO DE LA JUGADA (ACIERTO / ERROR)
+  ============================================================ */
+  function handleResult(correct, direction){
+    clearInterval(state.timerInterval);
+    const wasFrozenCard = state.isFrozenCard;
+
+    if (correct){
+      state.combo += 1;
+      state.bestComboThisLevel = Math.max(state.bestComboThisLevel, state.combo);
+
+      // Multiplicador X2 al alcanzar racha >= 5
+      let points = 100;
+      const multiplied = state.combo >= COMBO_MULTIPLIER_THRESHOLD;
+      if (multiplied) points *= 2;
+      state.score += points;
+
+      showFeedback(multiplied ? `¡BIEN! +${points}` : '¡BIEN! +100', 'ok');
+      if (multiplied) showComboMultiplierFX();
+
+      // Curación al llegar exactamente a racha de 10 (una sola vez por racha)
+      if (state.combo === COMBO_HEAL_THRESHOLD && !state.healedAtCombo10){
+        state.lives = Math.min(MAX_LIVES, state.lives + 1);
+        state.healedAtCombo10 = true;
+      }
+    } else {
+      state.lives -= 1;
+      state.combo = 0;
+      state.healedAtCombo10 = false; // se reinicia junto a la racha
+      showFeedback('¡ERROR!', 'err');
+    }
+
+    updateHUD();
+
+    if (state.lives <= 0){
+      setTimeout(endGame, 450);
+      return;
+    }
+
+    // ¿Se alcanzó el puntaje objetivo del nivel?
+    if (state.score >= targetForLevel(state.level)){
+      setTimeout(showLevelComplete, 450);
+      return;
+    }
+
+    // Carta Helada acertada: pausa/congela el temporizador 5s antes de la siguiente carta
+    const extraDelay = (correct && wasFrozenCard) ? FREEZE_PAUSE_MS : 0;
+    if (extraDelay > 0){
+      el.freezeOverlay.classList.add('show');
+    }
+
+    setTimeout(() => {
+      el.freezeOverlay.classList.remove('show');
+      renderCard();
+      startTimer();
+    }, 300 + extraDelay);
+  }
+
+  /* ============================================================
+     10. TRANSICIÓN DE NIVEL
+  ============================================================ */
+  function showLevelComplete(){
+    state.isRunning = false;
+    clearInterval(state.timerInterval);
+
+    // Curación al completar el nivel (además de la posible curación por combo)
+    state.lives = Math.min(MAX_LIVES, state.lives + 1);
+    updateHUD();
+
+    el.levelSummaryScore.textContent = state.score;
+    el.levelSummaryCombo.textContent = state.bestComboThisLevel;
+    el.modalLevel.classList.remove('hidden');
+  }
+
+  function goToNextLevel(){
+    state.level += 1;
+    state.bestComboThisLevel = 0;
+    state.combo = 0;
+    state.healedAtCombo10 = false;
+    state.timeLimit = timeLimitForLevel(state.level);
+    state.isRunning = true;
+
+    el.modalLevel.classList.add('hidden');
+    updateHUD();
+    renderCard();
+    startTimer();
+  }
+
+  /* ============================================================
+     11. CICLO DE VIDA DEL JUEGO
+  ============================================================ */
+  function startGame(){
+    state.level = 1;
+    state.score = 0;
+    state.lives = MAX_LIVES;
+    state.combo = 0;
+    state.bestComboThisLevel = 0;
+    state.healedAtCombo10 = false;
+    state.timeLimit = timeLimitForLevel(state.level);
+    state.isRunning = true;
+
+    el.body.classList.remove('combo-mid', 'combo-fire');
+    el.modalStart.classList.add('hidden');
+    el.modalLevel.classList.add('hidden');
+    el.modalOver.classList.add('hidden');
+
+    updateHUD();
+    renderCard();
+    startTimer();
+  }
+
+  function endGame(){
+    state.isRunning = false;
+    clearInterval(state.timerInterval);
+    el.body.classList.remove('combo-mid', 'combo-fire');
+    el.finalScore.textContent = state.score;
+    el.modalOver.classList.remove('hidden');
+  }
+
+  el.btnStart.addEventListener('click', startGame);
+  el.btnNextLevel.addEventListener('click', goToNextLevel);
+  el.btnRetry.addEventListener('click', startGame); // reinicia siempre desde el Nivel 1
+
+  /* Estado inicial: solo se muestra el modal de inicio */
+  updateHUD();
+
+})();
+</script>
+</body>
+</html>

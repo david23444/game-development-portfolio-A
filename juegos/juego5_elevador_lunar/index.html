@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elevador Lunar: Misión Arcade v3.1</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', sans-serif; }
+        body { background: #020617; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        #game-container {
+            position: relative; width: 800px; height: 600px;
+            background: #0f172a; border: 2px solid #38bdf8; border-radius: 12px;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); overflow: hidden;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        /* INTERFACES OVERLAY */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(2, 6, 23, 0.9); backdrop-filter: blur(5px);
+            z-index: 10;
+        }
+        .hidden { display: none !important; }
+
+        h1 { font-size: 3rem; color: #38bdf8; text-shadow: 0 0 10px #38bdf8; margin-bottom: 10px; text-align: center; }
+        p { font-size: 1.2rem; color: #cbd5e1; margin-bottom: 20px; text-align: center; max-width: 600px; }
+        
+        .btn {
+            background: #38bdf8; color: #0f172a; border: none; padding: 15px 30px;
+            font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .btn:hover { background: #7dd3fc; transform: scale(1.05); }
+
+        /* BATALLA DE JEFE Y QUIZ */
+        .ui-box { background: rgba(15, 23, 42, 0.95); border: 2px solid #ef4444; border-radius: 12px; padding: 30px; text-align: center; width: 80%; }
+        .boss-sprite { font-size: 5rem; margin-bottom: 10px; animation: float 2s infinite ease-in-out; }
+        .boss-hp { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .hp-dot { width: 25px; height: 25px; background: #ef4444; border-radius: 50%; box-shadow: 0 0 10px #ef4444; }
+        .hp-dot.empty { background: #334155; box-shadow: none; }
+        
+        .question-box { font-size: 2.5rem; font-weight: bold; margin: 20px 0; color: white; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 auto; max-width: 500px; }
+        .options-grid.three-cols { grid-template-columns: 1fr 1fr 1fr; }
+        
+        .opt-btn {
+            background: #1e293b; color: white; border: 1px solid #38bdf8; padding: 15px;
+            font-size: 1.5rem; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .opt-btn:hover { background: #38bdf8; color: #0f172a; }
+
+        /* POWER-UPS */
+        .powerup-grid { display: flex; gap: 20px; justify-content: center; }
+        .powerup-card {
+            background: #1e293b; border: 2px solid #f59e0b; padding: 20px; border-radius: 12px;
+            cursor: pointer; width: 150px; text-align: center; transition: 0.2s;
+        }
+        .powerup-card:hover { transform: translateY(-10px); background: #334155; }
+        .powerup-icon { font-size: 3rem; margin-bottom: 10px; }
+
+        /* HUD */
+        #hud { position: absolute; top: 10px; left: 20px; right: 20px; display: flex; justify-content: space-between; z-index: 5; pointer-events: none; }
+        .hud-text { font-size: 1.5rem; font-weight: bold; color: #38bdf8; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <div id="hud">
+        <div class="hud-text" id="hud-lives">❤️❤️❤️</div>
+        <div class="hud-text" id="hud-dist">Distancia: 0m</div>
+        <div class="hud-text" id="hud-phase">Nivel: 1/3</div>
+    </div>
+
+    <!-- INICIO -->
+    <div id="start-screen" class="overlay">
+        <h1>Misión Lunar</h1>
+        <p>Muévete con <b>W A S D</b>. ¡El disparo es automático!<br>Esquiva asteroides, destruye bichos, cruza las puertas matemáticas correctas y llega al jefe.</p>
+        <button class="btn" onclick="startGame()">Iniciar Misión 🚀</button>
+    </div>
+
+    <!-- JEFE -->
+    <div id="boss-ui" class="overlay hidden">
+        <div class="ui-box">
+            <h2 style="color:#ef4444;">¡JEFE MATEMÁTICO!</h2>
+            <div class="boss-sprite" id="boss-icon">🛸</div>
+            <div class="boss-hp" id="boss-hp-bar"></div>
+            <div class="question-box" id="boss-question">?</div>
+            <div class="options-grid" id="boss-options"></div>
+        </div>
+    </div>
+
+    <!-- ELEGIR POWER-UP -->
+    <div id="powerup-select-ui" class="overlay hidden">
+        <h1>Selecciona un Potenciador</h1>
+        <p>Elige tu recompensa. Tendrás que responder una pregunta sencilla para obtenerla.</p>
+        <div class="powerup-grid">
+            <div class="powerup-card" onclick="selectPowerup('life')">
+                <div class="powerup-icon">❤️</div>
+                <h3>+1 Vida</h3>
+            </div>
+            <div class="powerup-card" onclick="selectPowerup('triple')">
+                <div class="powerup-icon">🔫</div>
+                <h3>Disp. Triple</h3>
+            </div>
+            <div class="powerup-card" onclick="selectPowerup('shield')">
+                <div class="powerup-icon">🛡️</div>
+                <h3>Escudo (1 golpe)</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUIZ DEL POWER-UP -->
+    <div id="powerup-quiz-ui" class="overlay hidden">
+        <div class="ui-box" style="border-color: #f59e0b;">
+            <h2 style="color:#f59e0b;">Desafío de Potenciador</h2>
+            <p>Responde bien para obtener tu mejora.</p>
+            <div class="question-box" id="pu-question">?</div>
+            <div class="options-grid three-cols" id="pu-options"></div>
+        </div>
+    </div>
+
+    <!-- GAME OVER / WIN -->
+    <div id="game-over" class="overlay hidden">
+        <h1 id="end-title">Game Over</h1>
+        <p id="end-desc">Tu nave fue destruida.</p>
+        <button class="btn" onclick="location.reload()">Reintentar</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // ESTADOS Y VARIABLES GLOBALES
+    let gameState = 'START'; 
+    let frameCount = 0;
+    
+    // Progresión (Velocidad general reducida)
+    let phase = 1;
+    let distance = 0;
+    const levelLength = 2200; 
+    let gateSpawnedAt = [600, 1200, 1800]; 
+    let gatesPassed = 0;
+
+    // Entidades
+    const player = { x: 375, y: 500, w: 40, h: 40, speed: 5, lives: 3, hasShield: false, tripleShot: false };
+    let lasers = [];
+    let enemies = [];
+    let particles = [];
+    let stars = [];
+    let activeGate = null;
+
+    let bossMaxHp = 3;
+    let bossCurrentHp = 3;
+    let selectedPowerup = '';
+
+    const keys = { w: false, a: false, s: false, d: false };
+    window.addEventListener('keydown', e => { if(e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = true; });
+    window.addEventListener('keyup', e => { if(e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = false; });
+
+    // PREGUNTAS MÁS FÁCILES (Nivel 1ro/2do secundaria)
+    function r(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function getQuestion(difficulty, optionsCount) {
+        const ops = ['+', '-'];
+        const op = ops[r(0, 1)]; // Enfocado en sumas y restas amigables
+        let a, b, ans;
+        
+        if (op === '+') { a = r(5, 25); b = r(5, 25); ans = a + b; }
+        else { a = r(15, 35); b = r(2, a); ans = a - b; }
+
+        let opts = [ans];
+        while (opts.length < optionsCount) {
+            let fake = ans + (r(1, 6) * (Math.random() > 0.5 ? 1 : -1));
+            if (fake >= 0 && !opts.includes(fake)) opts.push(fake);
+        }
+        return { text: `${a} ${op} ${b}`, ans: ans, opts: opts.sort(() => Math.random() - 0.5) };
+    }
+
+    function shootLaser() {
+        if(player.tripleShot) {
+            lasers.push({ x: player.x + 15, y: player.y, vx: 0, vy: -10 });
+            lasers.push({ x: player.x + 15, y: player.y, vx: -2.5, vy: -9.5 });
+            lasers.push({ x: player.x + 15, y: player.y, vx: 2.5, vy: -9.5 });
+        } else {
+            lasers.push({ x: player.x + 15, y: player.y, vx: 0, vy: -10 });
+        }
+    }
+
+    function takeDamage() {
+        if (player.hasShield) {
+            player.hasShield = false;
+            createExplosion(player.x, player.y, '#38bdf8');
+            return;
+        }
+        player.lives--;
+        createExplosion(player.x, player.y, '#ef4444');
+        updateHUD();
+        if (player.lives <= 0) {
+            gameState = 'GAMEOVER';
+            document.getElementById('game-over').classList.remove('hidden');
+        }
+    }
+
+    function createExplosion(x, y, color) {
+        for(let i=0; i<12; i++) {
+            particles.push({
+                x: x+20, y: y+20, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
+                life: 1, color: color
+            });
+        }
+    }
+
+    function update() {
+        if (gameState !== 'PLAYING') return;
+        frameCount++;
+
+        if (keys.w && player.y > 0) player.y -= player.speed;
+        if (keys.s && player.y < 560) player.y += player.speed;
+        if (keys.a && player.x > 0) player.x -= player.speed;
+        if (keys.d && player.x < 760) player.x += player.speed;
+
+        // Disparo automático un poco más pausado (cada 25 frames)
+        if (frameCount % 25 === 0) shootLaser();
+
+        // Velocidad de avance general reducida (1.5 en vez de 2)
+        distance += 1.5; 
+        updateHUD();
+
+        stars.forEach(s => { s.y += s.speed * 0.7; if(s.y > 600) s.y = 0; });
+
+        lasers.forEach((l, i) => {
+            l.y += l.vy; l.x += l.vx;
+            if(l.y < 0) lasers.splice(i, 1);
+        });
+
+        // Puertas Matemáticas
+        if (gatesPassed < gateSpawnedAt.length && distance >= gateSpawnedAt[gatesPassed] && !activeGate) {
+            let q = getQuestion('easy', 3);
+            activeGate = {
+                y: -100, question: q.text, correct: q.ans, options: q.opts, passed: false
+            };
+        }
+
+        if (activeGate) {
+            activeGate.y += 2; // Descenso de la puerta más lento
+            
+            if (!activeGate.passed && player.y < activeGate.y + 60 && player.y + player.h > activeGate.y) {
+                let zoneWidth = 800 / 3;
+                let playerCenter = player.x + (player.w/2);
+                let selectedZone = Math.floor(playerCenter / zoneWidth);
+                let selectedAnswer = activeGate.options[selectedZone];
+                
+                if (selectedAnswer === activeGate.correct) {
+                    createExplosion(player.x, player.y, '#10b981');
+                } else {
+                    takeDamage();
+                }
+                activeGate.passed = true;
+            }
+
+            if (activeGate.y > 600) {
+                activeGate = null;
+                gatesPassed++;
+            }
+        }
+
+        // Obstáculos y enemigos concurrentes (Siguen apareciendo de forma controlada)
+        if (Math.random() < 0.025) {
+            let type = Math.random() > 0.4 ? '👾' : '☄️';
+            enemies.push({ x: r(20, 750), y: -40, w: 35, h: 35, speed: 2 + (phase * 0.5), icon: type });
+        }
+
+        enemies.forEach((e, i) => {
+            e.y += e.speed;
+            if (e.y > 600) enemies.splice(i, 1);
+            
+            if (e.icon === '👾') {
+                lasers.forEach((l, li) => {
+                    if (l.x < e.x + e.w && l.x + 10 > e.x && l.y < e.y + e.h && l.y + 20 > e.y) {
+                        createExplosion(e.x, e.y, '#f59e0b');
+                        enemies.splice(i, 1);
+                        lasers.splice(li, 1);
+                    }
+                });
+            }
+
+            if (e.x < player.x + player.w && e.x + e.w > player.x && e.y < player.y + player.h && e.y + e.h > player.y) {
+                enemies.splice(i, 1);
+                takeDamage();
+            }
+        });
+
+        particles.forEach((p, i) => {
+            p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+            if (p.life <= 0) particles.splice(i, 1);
+        });
+
+        if (distance >= levelLength && !activeGate) {
+            triggerBoss();
+        }
+    }
+
+    function draw() {
+        ctx.fillStyle = phase === 1 ? '#0f172a' : phase === 2 ? '#1e1b4b' : '#000000';
+        ctx.fillRect(0,0,800,600);
+
+        ctx.fillStyle = 'white';
+        stars.forEach(s => ctx.fillRect(s.x, s.y, 2, 2));
+
+        if (gameState === 'PLAYING') {
+            if (activeGate) {
+                ctx.fillStyle = 'rgba(255,255,255,0.08)';
+                ctx.fillRect(0, activeGate.y, 800, 60);
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${activeGate.question} = ?`, 400, activeGate.y - 15);
+
+                let colors = ['rgba(239, 68, 68, 0.25)', 'rgba(56, 189, 248, 0.25)', 'rgba(16, 185, 129, 0.25)'];
+                let w = 800/3;
+                
+                activeGate.options.forEach((opt, idx) => {
+                    ctx.fillStyle = colors[idx];
+                    ctx.fillRect(idx * w, activeGate.y, w, 60);
+                    
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 24px Arial';
+                    ctx.fillText(opt, (idx * w) + (w/2), activeGate.y + 40);
+                    
+                    if(idx > 0) {
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(idx * w, activeGate.y, 2, 60);
+                    }
+                });
+                ctx.textAlign = 'left';
+            }
+
+            ctx.font = '35px Arial';
+            ctx.fillText(player.icon, player.x, player.y + 35);
+            if (player.hasShield) {
+                ctx.beginPath(); ctx.arc(player.x+20, player.y+20, 30, 0, Math.PI*2);
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3; ctx.stroke();
+            }
+
+            ctx.fillStyle = '#38bdf8';
+            lasers.forEach(l => { ctx.fillRect(l.x, l.y, 10, 20); });
+
+            enemies.forEach(e => { ctx.fillText(e.icon, e.x, e.y + 30); });
+
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+                ctx.globalAlpha = 1;
+            });
+        }
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+        document.getElementById('start-screen').classList.add('hidden');
+        player.icon = '🚀';
+        for(let i=0; i<100; i++) stars.push({ x: r(0,800), y: r(0,600), speed: r(1,3) });
+        gameState = 'PLAYING';
+        updateHUD();
+        gameLoop();
+    }
+
+    function updateHUD() {
+        document.getElementById('hud-lives').innerText = '❤️'.repeat(player.lives);
+        document.getElementById('hud-dist').innerText = `Distancia: ${Math.floor(distance)}m`;
+        document.getElementById('hud-phase').innerText = `Nivel: ${phase}/3`;
+    }
+
+    function triggerBoss() {
+        gameState = 'BOSS';
+        lasers = []; enemies = []; activeGate = null;
+        document.getElementById('boss-ui').classList.remove('hidden');
+        
+        bossMaxHp = phase === 3 ? 4 : 3;
+        bossCurrentHp = bossMaxHp;
+        
+        document.getElementById('boss-icon').innerText = phase === 1 ? '🛸' : phase === 2 ? '👾' : '👺';
+        renderBossQuestion();
+    }
+
+    function renderBossQuestion() {
+        let hpHTML = '';
+        for(let i=0; i<bossMaxHp; i++) hpHTML += `<div class="hp-dot ${i >= bossCurrentHp ? 'empty' : ''}"></div>`;
+        document.getElementById('boss-hp-bar').innerHTML = hpHTML;
+
+        let q = getQuestion('easy', 4);
+        document.getElementById('boss-question').innerText = `${q.text} = ?`;
+        
+        let optsHTML = '';
+        q.opts.forEach(opt => {
+            optsHTML += `<button class="opt-btn" onclick="checkBossAnswer(${opt}, ${q.ans})">${opt}</button>`;
+        });
+        document.getElementById('boss-options').innerHTML = optsHTML;
+    }
+
+    function checkBossAnswer(selected, correct) {
+        if (selected === correct) {
+            bossCurrentHp--;
+            if (bossCurrentHp <= 0) {
+                document.getElementById('boss-ui').classList.add('hidden');
+                
+                if (phase >= 3) {
+                    gameState = 'WIN';
+                    document.getElementById('game-over').classList.remove('hidden');
+                    document.getElementById('end-title').innerText = "¡Llegaste a la Luna! 🌕";
+                    document.getElementById('end-desc').innerText = "¡Misión completada con éxito!";
+                } else {
+                    triggerPowerupSelect();
+                }
+            } else {
+                renderBossQuestion();
+            }
+        } else {
+            takeDamage();
+            if(player.lives > 0) {
+                document.getElementById('boss-question').style.color = '#ef4444';
+                setTimeout(() => document.getElementById('boss-question').style.color = 'white', 500);
+            } else {
+                document.getElementById('boss-ui').classList.add('hidden');
+            }
+        }
+    }
+
+    function triggerPowerupSelect() {
+        gameState = 'POWERUP_SELECT';
+        document.getElementById('powerup-select-ui').classList.remove('hidden');
+    }
+
+    function selectPowerup(type) {
+        selectedPowerup = type;
+        document.getElementById('powerup-select-ui').classList.add('hidden');
+        document.getElementById('powerup-quiz-ui').classList.remove('hidden');
+        
+        let q = getQuestion('easy', 3);
+        document.getElementById('pu-question').innerText = `${q.text} = ?`;
+        
+        let optsHTML = '';
+        q.opts.forEach(opt => {
+            optsHTML += `<button class="opt-btn" onclick="checkPowerupAnswer(${opt}, ${q.ans})">${opt}</button>`;
+        });
+        document.getElementById('pu-options').innerHTML = optsHTML;
+    }
+
+    function checkPowerupAnswer(selected, correct) {
+        document.getElementById('powerup-quiz-ui').classList.add('hidden');
+        
+        if (selected === correct) {
+            if (selectedPowerup === 'life' && player.lives < 5) player.lives++;
+            if (selectedPowerup === 'triple') player.tripleShot = true;
+            if (selectedPowerup === 'shield') player.hasShield = true;
+        } 
+        
+        phase++;
+        distance = 0;
+        gatesPassed = 0;
+        player.x = 375; player.y = 500;
+        
+        gameState = 'PLAYING';
+        updateHUD();
+    }
+</script>
+</body>
+</html>
