@@ -66,7 +66,7 @@ game-development-portfolio/
 ## 🚀 Cómo correr el portafolio localmente
 
 ```bash
-git clone https://github.com/TU-USUARIO/game-development-portfolio.git
+git clone https://sassan225.github.io/game-development-portfolio-A/
 cd game-development-portfolio
 # abre index.html en el navegador, o usa Live Server en VS Code
 ```
