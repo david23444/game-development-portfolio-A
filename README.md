@@ -1,8 +1,10 @@
 # 🎮 Lukas — Game Development Portfolio
 
+![Banner](assets/banner.jpg)
+
 > Portafolio de prototipos de videojuegos desarrollados con **HTML, CSS y JavaScript** durante la asignatura de Game Development.
 
-🔗 **Portafolio interactivo en vivo:** `https://sassan225.github.io/game-development-portfolio/`
+🔗 **Portafolio interactivo en vivo:** `https://sassan225.github.io/game-development-portfolio-A/`
 
 
 ![status](https://img.shields.io/badge/status-en%20desarrollo-E8A33D)
