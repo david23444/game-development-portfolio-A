@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # David — Game Development Portfolio
 
 ![Banner](assets/banner.jpg)
