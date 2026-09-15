@@ -1,4 +1,4 @@
-# 🎮 ¡Ahórralo, Rubén!
+# ¡Ahórralo, Rubén!
 
 ## Descripción
 
@@ -42,7 +42,7 @@ Correr, saltar y esquivar obstáculos mientras el jugador avanza por un escenari
 
 ![Gameplay](../../assets/capturas/juego1_gameplay.png)
 
-## 🤖 Apoyo de IA
+## Apoyo de IA
 
 Durante las primeras semanas de la asignatura de **Game Development**, utilizamos herramientas de inteligencia artificial como apoyo para el desarrollo técnico de nuestros prototipos.
 
@@ -52,7 +52,7 @@ La parte conceptual del proyecto fue desarrollada por nosotros. La idea inicial 
 
 De esta manera, nuestro principal aporte estuvo en la **creación de la idea, definición de la temática, selección de la mecánica, toma de decisiones sobre el funcionamiento del juego y refinamiento de la propuesta**, mientras que la inteligencia artificial fue utilizada como herramienta de apoyo para convertir estas ideas en una implementación funcional.
 
-## 📚 Qué aprendí
+## Qué aprendí
 
 Durante el desarrollo de este proyecto aprendí a organizar mejor la creación de un videojuego desde una idea inicial hasta un prototipo funcional.
 
@@ -60,7 +60,7 @@ Uno de los principales aprendizajes fue comprender que un proyecto de Game Devel
 
 También aprendí a estructurar mejor un proyecto para que las ideas planteadas puedan convertirse progresivamente en una experiencia jugable.
 
-## 🔧 Qué mejoraría
+##  Qué mejoraría
 
 En una siguiente versión mejoraría principalmente el apartado visual y la experiencia general del juego.
 
@@ -76,6 +76,6 @@ Entre las mejoras que incorporaría se encuentran:
 
 La intención sería transformar el prototipo actual en una experiencia más completa, dinámica y atractiva para el jugador.
 
-## 🕹️ Jugar
+##  Jugar
 
-👉 [Abrir juego](index.html)
+ [Abrir juego](index.html)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # David — Game Development Portfolio
 
 ![Banner](assets/banner.jpg)
@@ -72,3 +73,5 @@ Aprendí: a estructurar múltiples prototipos independientes bajo un mismo repos
 Mejoraría: unificar assets compartidos (sprites, sonidos) entre juegos, y agregar un sistema simple de puntuación/progreso persistente por juego.
 
 Hecho por David · Ingeniería de Sistemas
+=======
+# game-development-portfolio-A

@@ -1,4 +1,4 @@
-# 🎮 FreshFlow
+#  FreshFlow
 
 ## Descripción
 
@@ -38,22 +38,22 @@ Preparación de pedidos, administración de recursos y toma de decisiones bajo p
 
 ![Gameplay](../../assets/capturas/juego2_gameplay.png)
 
-## 🤖 Apoyo de IA
+##  Apoyo de IA
 
 La inteligencia artificial fue utilizada como apoyo durante la implementación del proyecto, principalmente en la generación y ajuste del código en **HTML, CSS y JavaScript**.
 
 La idea, diseño de la experiencia y decisiones sobre las mecánicas fueron definidas por nosotros y posteriormente llevadas a una versión funcional con ayuda de estas herramientas.
 
-## 📚 Qué aprendí
+##  Qué aprendí
 
 Este proyecto me permitió experimentar más con la **presentación visual de un videojuego**, además de trabajar con sistemas de niveles, progresión y diferentes resultados según las decisiones del jugador.
 
-## 🔧 Qué mejoraría
+##  Qué mejoraría
 
 Mejoraría principalmente la variedad de situaciones y eventos durante las partidas, agregando más contenido, opciones de gestión y consecuencias para que cada partida tenga una experiencia diferente.
 
 También ampliaría la progresión y puliría algunos elementos visuales y de jugabilidad.
 
-## 🕹️ Jugar
+##  Jugar
 
-👉 [Abrir juego](index.html)
+ [Abrir juego](index.html)

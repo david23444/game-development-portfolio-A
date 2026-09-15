@@ -1,139 +1,150 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>David // Game Dev Portfolio</title>
+<title>David // Arcade Vintage Archive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #0F1E22;
-    --bg-panel: #142A2F;
-    --line: #26454B;
-    --text: #EAE3D6;
-    --text-dim: #8FA6A8;
-    --amber: #E8A33D;
-    --teal: #4FD1C5;
-    --danger: #E8663D;
-    --radius: 4px;
+    --bg: #1c1815;
+    --bg-panel: #26211c;
+    --line: #4a3f35;
+    --text: #e6d5bc;
+    --text-dim: #9e8a75;
+    --amber: #ffb000;
+    --vintage-red: #cc3333;
+    --vintage-green: #339966;
+    --radius: 0px; /* Estilo totalmente retro cuadrado */
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
     background: var(--bg);
     color: var(--text);
-    font-family: 'IBM Plex Sans', sans-serif;
-    line-height: 1.5;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    line-height: 1.4;
+    background-image: radial-gradient(rgba(255, 176, 0, 0.03) 1px, transparent 0);
+    background-size: 24px 24px;
   }
-  .mono{ font-family:'JetBrains Mono', monospace; }
+  .mono{ font-family:'VT323', monospace; }
   a{ color: inherit; }
 
-  /* subtle scanline texture */
+  /* Efecto de pantalla de tubo antiguo (CRT Scanlines) */
   body::before{
     content:"";
-    position: fixed; inset:0; pointer-events:none; z-index:1;
-    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    position: fixed; inset:0; pointer-events:none; z-index:99;
+    background: linear-gradient(rgba(18, 16, 13, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 3px, 6px 100%;
   }
 
   header.boot{
-    max-width: 880px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 64px 24px 32px;
+    padding: 40px 20px 20px;
+    border-bottom: 2px dashed var(--line);
   }
   .prompt-line{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--teal);
-    letter-spacing: 0.03em;
-    margin-bottom: 4px;
+    font-family:'VT323', monospace;
+    font-size: 22px;
+    color: var(--vintage-green);
+    margin-bottom: 8px;
   }
-  .prompt-line span.dim{ color: var(--text-dim); }
-  #boot-log{ min-height: 132px; }
+  #boot-log{ min-height: 30px; }
   .boot-cursor{
-    display:inline-block; width:8px; height:14px; background:var(--amber);
-    animation: blink 1s steps(1) infinite; vertical-align: -2px;
+    display:inline-block; width:10px; height:18px; background:var(--amber);
+    animation: blink 0.8s steps(1) infinite; vertical-align: -2px;
   }
   @keyframes blink{ 50%{ opacity:0; } }
 
   h1.title{
-    font-family:'JetBrains Mono', monospace;
-    font-weight:800;
-    font-size: clamp(34px, 6vw, 58px);
-    letter-spacing: -0.01em;
-    margin-top: 18px;
-    color: var(--text);
+    font-family:'Press Start 2P', monospace;
+    font-size: clamp(20px, 4vw, 32px);
+    letter-spacing: 2px;
+    margin-top: 15px;
+    color: var(--amber);
+    text-shadow: 3px 3px 0px #000;
   }
-  h1.title .cursor-amber{ color: var(--amber); }
+  h1.title .cursor-amber{ color: var(--vintage-red); }
+  
   p.subtitle{
     color: var(--text-dim);
-    max-width: 560px;
-    margin-top: 14px;
-    font-size: 15px;
-  }
-  .badges{ margin-top: 22px; display:flex; gap:8px; flex-wrap:wrap; }
-  .badge{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    padding: 4px 10px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    color: var(--text-dim);
+    max-width: 700px;
+    margin-top: 15px;
+    font-size: 22px;
+    font-family: 'Special Elite', cursive;
   }
 
-  section{ max-width: 880px; margin: 0 auto; padding: 40px 24px; position:relative; z-index:2; }
+  .badges{ margin-top: 20px; display:flex; gap:10px; flex-wrap:wrap; }
+  .badge{
+    font-family:'VT323', monospace;
+    font-size: 18px;
+    padding: 2px 10px;
+    border: 1px solid var(--amber);
+    background: #2b2218;
+    color: var(--amber);
+  }
+
+  section{ max-width: 900px; margin: 0 auto; padding: 30px 20px; position:relative; z-index:2; }
   .section-head{
-    display:flex; align-items:baseline; gap:10px; margin-bottom: 22px;
-    border-bottom: 1px solid var(--line); padding-bottom: 12px;
+    display:flex; align-items:baseline; gap:15px; margin-bottom: 20px;
+    border-bottom: 2px solid var(--line); padding-bottom: 8px;
   }
   .section-head .tag{
-    font-family:'JetBrains Mono', monospace; font-size: 12px; color: var(--amber);
+    font-family:'VT323', monospace; font-size: 22px; color: var(--amber);
   }
-  .section-head h2{ font-size: 20px; font-weight:600; }
+  .section-head h2{ font-family:'Press Start 2P', monospace; font-size: 14px; color: var(--text); }
 
-  .about-grid{ display:grid; grid-template-columns: 1fr; gap: 10px; font-size:14px; color: var(--text-dim);}
-  .about-grid .stack{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
-  .chip{ font-family:'JetBrains Mono', monospace; font-size:11px; background: var(--bg-panel); border:1px solid var(--line); padding:3px 8px; border-radius: var(--radius); color: var(--text);}
+  .about-grid{ display:grid; grid-template-columns: 1fr; gap: 15px; font-size: 21px; color: var(--text-dim); font-family: 'Special Elite', cursive;}
+  .about-grid .stack{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .chip{ font-family:'VT323', monospace; font-size: 18px; background: var(--bg-panel); border:1px solid var(--line); padding:2px 8px; color: var(--amber);}
 
   .games-grid{
     display:grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
+    gap: 20px;
   }
   .card{
     background: var(--bg-panel);
-    border: 1px solid var(--line);
+    border: 2px solid var(--line);
     border-radius: var(--radius);
-    padding: 16px;
+    padding: 15px;
     display:flex; flex-direction:column; gap:10px;
-    transition: border-color .15s ease, transform .15s ease;
+    box-shadow: 4px 4px 0px #000;
+    transition: transform .1s ease, border-color .1s ease;
   }
-  .card:hover{ border-color: var(--teal); transform: translateY(-2px); }
-  .card .proc-id{ font-family:'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); }
+  .card:hover{ border-color: var(--amber); transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--amber); }
+  .card .proc-id{ font-family:'VT323', monospace; font-size: 20px; color: var(--vintage-green); }
   .card .thumb{
     width:100%; aspect-ratio: 16/9; border-radius: var(--radius);
-    background: linear-gradient(135deg, #1B3339, #0F1E22);
+    background: #110e0c;
     border: 1px dashed var(--line);
     display:flex; align-items:center; justify-content:center;
-    color: var(--text-dim); font-family:'JetBrains Mono', monospace; font-size:11px;
+    color: var(--text-dim); font-family:'VT323', monospace; font-size:16px;
     object-fit: cover; text-align:center; padding: 8px; word-break: break-all;
   }
-  .card h3{ font-size: 16px; font-weight:600; }
-  .card p{ font-size: 13px; color: var(--text-dim); flex-grow:1; }
+  .card h3{ font-family:'Press Start 2P', monospace; font-size: 12px; color: var(--amber); margin: 5px 0; }
+  .card p{ font-size: 19px; color: var(--text-dim); flex-grow:1; font-family: 'Special Elite', cursive; }
   .card .meta{ display:flex; gap:6px; flex-wrap:wrap; }
-  .card .actions{ display:flex; gap:8px; margin-top:4px; }
+  .card .actions{ display:flex; gap:10px; margin-top:6px; }
   .btn{
-    font-family:'JetBrains Mono', monospace; font-size:12px;
-    padding: 8px 12px; border-radius: var(--radius); text-align:center;
-    text-decoration:none; flex:1;
+    font-family:'VT323', monospace; font-size: 20px;
+    padding: 6px 10px; border-radius: var(--radius); text-align:center;
+    text-decoration:none; flex:1; cursor: pointer;
+    border: 1px solid currentColor;
   }
-  .btn-primary{ background: var(--amber); color: #14201f; font-weight:700; }
-  .btn-ghost{ border:1px solid var(--line); color: var(--text); }
-  .status-ok{ color: var(--teal); }
-  .status-pending{ color: var(--danger); }
+  .btn-primary{ background: var(--amber); color: #110e0c; font-weight:700; border-color: var(--amber); }
+  .btn-primary:hover{ background: #ffa000; }
+  .btn-ghost{ border:1px solid var(--line); color: var(--text); background: #1c1815; }
+  .btn-ghost:hover{ border-color: var(--amber); color: var(--amber); }
+  .status-ok{ color: var(--vintage-green); }
 
   footer{
-    text-align:center; padding: 40px 24px 60px;
-    color: var(--text-dim); font-family:'JetBrains Mono', monospace; font-size:12px;
+    text-align:center; padding: 40px 20px;
+    color: var(--text-dim); font-family:'VT323', monospace; font-size: 20px;
+    border-top: 2px dashed var(--line);
+    margin-top: 40px;
   }
 
   @media (min-width: 620px){
@@ -145,136 +156,128 @@
 
 <header class="boot">
   <div class="prompt-line" id="boot-log"></div>
-  <h1 class="title">David<span class="cursor-amber">@</span>gamedev<span class="boot-cursor"></span></h1>
+  <h1 class="title">DAVID<span class="cursor-amber">.</span>ARCADE</h1>
   <p class="subtitle">
-    Estudiante de Ingeniería de Sistemas construyendo prototipos jugables
-    con HTML, CSS y JavaScript puro. Este repositorio reúne los juegos desarrollados
-    durante la asignatura de Game Development.
+    [ ARCHIVO RETRO DE SISTEMAS ] Prototipos y videojuegos desarrollados en cartuchos virtuales de HTML, CSS y JS puro.
   </p>
   <div class="badges">
-    <span class="badge">6 prototipos</span>
-    <span class="badge">HTML / CSS / JS</span>
-    <span class="badge">Deploy: GitHub Pages</span>
+    <span class="badge">&gt; 6 ROMS CARGADAS</span>
+    <span class="badge">&gt; SISTEMA VINTAGE</span>
+    <span class="badge">&gt; GITHUB PAGES</span>
   </div>
 </header>
 
 <section id="about">
-  <div class="section-head"><span class="tag mono">// 00</span><h2>Sobre mí</h2></div>
+  <div class="section-head"><span class="tag mono">&gt; 00</span><h2>PERFIL DEL JUGADOR</h2></div>
   <div class="about-grid">
     <div>
-      Me interesa el desarrollo de videojuegos como cruce entre lógica de sistemas y
-      diseño de experiencias. Además de Game Development, trabajo con Laravel,
-      Kotlin/Android, Roblox/Luau y proyectos IoT con ESP32.
+      Apasionado por la arquitectura de software clásica y la creación de experiencias arcade independientes. Desarrollo sistemas interactivos y me especializo también en Laravel, Kotlin, Roblox y hardware IoT.
       <div class="stack">
-        <span class="chip">JavaScript</span>
-        <span class="chip">Canvas API</span>
-        <span class="chip">Socket.IO</span>
-        <span class="chip">Roblox / Luau</span>
-        <span class="chip">Kotlin</span>
+        <span class="chip">JS_CORE</span>
+        <span class="chip">CANVAS</span>
+        <span class="chip">SOCKETS</span>
+        <span class="chip">LUAU</span>
+        <span class="chip">KOTLIN</span>
       </div>
     </div>
     <div>
-      La mayoría de estos prototipos exploran temas de educación ambiental
-      (agua, reciclaje, cuidado animal) y concientización social (bullying),
-      con mecánicas simples y directas, pensadas para jugarse en pocos minutos.
-      Como jugador, <strong>Dota 2</strong> es una referencia constante en cómo
-      pienso el diseño de sistemas y balance de mecánicas.
+      Los prototipos de este archivo exploran temáticas de conciencia ambiental y social mediante mecánicas directas de la vieja escuela. Para mí, <strong>Dota 2</strong> representa el diseño definitivo de balance de sistemas.
     </div>
   </div>
 </section>
 
 <section id="games">
-  <div class="section-head"><span class="tag mono">// 01</span><h2>Módulos cargados — Galería de juegos</h2></div>
+  <div class="section-head"><span class="tag mono">&gt; 01</span><h2>CATÁLOGO DE CARTUCHOS</h2></div>
 
   <div class="games-grid">
 
     <div class="card">
-      <span class="proc-id status-ok">PROC_01 · AHORRALO_RUBEN.exe [OK]</span>
-      <img class="thumb" src="assets/gifs/juego1_ahorralo_ruben.gif" alt="Gameplay de ¡Ahórralo, Rubén!" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'assets/gifs/juego1_ahorralo_ruben.gif'}))">
+      <span class="proc-id status-ok">ROM_01 · AHORRALO_RUBEN [READY]</span>
+      <img class="thumb" src="assets/gifs/juego1_ahorralo_ruben.gif" alt="Gameplay de ¡Ahórralo, Rubén!" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'juego1_ahorralo_ruben.gif'}))">
       <h3>¡Ahórralo, Rubén!</h3>
-      <p>Platformer sobre uso responsable del agua. Rubén debe avanzar el nivel evitando el desperdicio.</p>
+      <p>Platformer clásico sobre el uso responsable del agua y la supervivencia urbana.</p>
       <div class="meta">
         <span class="chip">Platformer</span>
-        <span class="chip">JS Canvas</span>
+        <span class="chip">Canvas</span>
       </div>
       <div class="actions">
-        <a class="btn btn-primary" href="juegos/juego1_!ahorralo_Ruben!/index.html">Jugar</a>
-        <a class="btn btn-ghost" href="juegos/juego1_!ahorralo_Ruben!/README.md">Detalles</a>
+        <a class="btn btn-primary" href="juegos/juego1_!ahorralo_Ruben!/index.html">PLAY</a>
+        <a class="btn btn-ghost" href="juegos/juego1_!ahorralo_Ruben!/README.md">INFO</a>
       </div>
     </div>
 
     <div class="card">
-      <span class="proc-id status-ok">PROC_02 · FRESHFLOW.exe [OK]</span>
-      <img class="thumb" src="assets/gifs/juego2_freshflow.gif" alt="Gameplay de FreshFlow" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'assets/gifs/juego2_freshflow.gif'}))">
+      <span class="proc-id status-ok">ROM_02 · FRESHFLOW [READY]</span>
+      <img class="thumb" src="assets/gifs/juego2_freshflow.gif" alt="Gameplay de FreshFlow" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'juego2_freshflow.gif'}))">
       <h3>FreshFlow</h3>
-      <p>Gestión de una taberna: atiende pedidos de clientes, gana dinero y mejora tu negocio.</p>
+      <p>Simulador de gestión de taberna: sirve órdenes a tiempo y expande tu local.</p>
       <div class="meta">
-        <span class="chip">Management</span>
         <span class="chip">Tycoon</span>
+        <span class="chip">Management</span>
       </div>
       <div class="actions">
-        <a class="btn btn-primary" href="juegos/juego2_fresh_flow/index.html">Jugar</a>
-        <a class="btn btn-ghost" href="juegos/juego2_fresh_flow/README.md">Detalles</a>
+        <a class="btn btn-primary" href="juegos/juego2_fresh_flow/index.html">PLAY</a>
+        <a class="btn btn-ghost" href="juegos/juego2_fresh_flow/README.md">INFO</a>
       </div>
     </div>
 
     <div class="card">
-      <span class="proc-id status-ok">PROC_03 · ECOSWIPE.exe [OK]</span>
-      <img class="thumb" src="assets/gifs/juego3_ecoswipe.gif" alt="Gameplay de EcoSwipe" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'assets/gifs/juego3_ecoswipe.gif'}))">
+      <span class="proc-id status-ok">ROM_03 · ECOSWIPE [READY]</span>
+      <img class="thumb" src="assets/gifs/juego3_ecoswipe.gif" alt="Gameplay de EcoSwipe" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'juego3_ecoswipe.gif'}))">
       <h3>EcoSwipe</h3>
-      <p>Arcade de reflejos: clasifica residuos deslizando la tarjeta antes de perder una vida.</p>
+      <p>Arcade de reflejos rápidos: clasifica la basura antes de que colapse el sistema.</p>
       <div class="meta">
         <span class="chip">Arcade</span>
-        <span class="chip">Clasificación</span>
+        <span class="chip">Reflejos</span>
       </div>
       <div class="actions">
-        <a class="btn btn-primary" href="juegos/juego3_ecoswipe/index.html">Jugar</a>
-        <a class="btn btn-ghost" href="juegos/juego3_ecoswipe/README.md">Detalles</a>
+        <a class="btn btn-primary" href="juegos/juego3_ecoswipe/index.html">PLAY</a>
+        <a class="btn btn-ghost" href="juegos/juego3_ecoswipe/README.md">INFO</a>
       </div>
     </div>
 
     <div class="card">
-      <span class="proc-id status-ok">PROC_04 · EDUCAPET.exe [OK]</span>
-      <img class="thumb" src="assets/gifs/juego4_educapet.gif" alt="Gameplay de EducaPet" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'assets/gifs/juego4_educapet.gif'}))">
+      <span class="proc-id status-ok">ROM_04 · EDUCAPET [READY]</span>
+      <img class="thumb" src="assets/gifs/juego4_educapet.gif" alt="Gameplay de EducaPet" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'juego4_educapet.gif'}))">
       <h3>EducaPet</h3>
-      <p>Simulador de cuidado y nutrición de mascotas con mecánicas de gestión.</p>
+      <p>Simulador virtual de nutrición y bienestar animal estilo retro digital.</p>
       <div class="meta">
         <span class="chip">Simulation</span>
-        <span class="chip">Educativo</span>
+        <span class="chip">Pet</span>
       </div>
       <div class="actions">
-        <a class="btn btn-primary" href="juegos/juego4_educapet/index.html">Jugar</a>
-        <a class="btn btn-ghost" href="juegos/juego4_educapet/README.md">Detalles</a>
+        <a class="btn btn-primary" href="juegos/juego4_educapet/index.html">PLAY</a>
+        <a class="btn btn-ghost" href="juegos/juego4_educapet/README.md">INFO</a>
       </div>
     </div>
 
     <div class="card">
-      <span class="proc-id status-ok">PROC_05 · ELEVADOR_LUNAR.exe [OK]</span>
-      <img class="thumb" src="assets/gifs/juego5_elevador_lunar.gif" alt="Gameplay de Elevador Lunar" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'assets/gifs/juego5_elevador_lunar.gif'}))">
+      <span class="proc-id status-ok">ROM_05 · ELEVADOR_LUNAR [READY]</span>
+      <img class="thumb" src="assets/gifs/juego5_elevador_lunar.gif" alt="Gameplay de Elevador Lunar" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'juego5_elevador_lunar.gif'}))">
       <h3>Elevador Lunar</h3>
-      <p>Shooter espacial con jefes matemáticos: responde correctamente para avanzar y mejorar tu nave.</p>
+      <p>Shooter espacial con jefes matemáticos de cálculo rápido y mejoras de nave.</p>
       <div class="meta">
         <span class="chip">Shooter</span>
-        <span class="chip">Educativo</span>
+        <span class="chip">Math</span>
       </div>
       <div class="actions">
-        <a class="btn btn-primary" href="juegos/juego5_elevador_lunar/index.html">Jugar</a>
-        <a class="btn btn-ghost" href="juegos/juego5_elevador_lunar/README.md">Detalles</a>
+        <a class="btn btn-primary" href="juegos/juego5_elevador_lunar/index.html">PLAY</a>
+        <a class="btn btn-ghost" href="juegos/juego5_elevador_lunar/README.md">INFO</a>
       </div>
     </div>
 
     <div class="card">
-      <span class="proc-id status-ok">PROC_06 · BULLY_REDENTION.exe [OK]</span>
-      <img class="thumb" src="assets/gifs/juego6_bully_redention.gif" alt="Gameplay de Bully Redention" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'assets/gifs/juego6_bully_redention.gif'}))">
+      <span class="proc-id status-ok">ROM_06 · BULLY_REDENTION [READY]</span>
+      <img class="thumb" src="assets/gifs/juego6_bully_redention.gif" alt="Gameplay de Bully Redention" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'thumb',textContent:'juego6_bully_redention.gif'}))">
       <h3>Bully Redention</h3>
-      <p>Novela visual sobre bullying y sus consecuencias, con decisiones que definen uno de dos finales.</p>
+      <p>Novela visual interactiva de decisiones morales con múltiples finales ocultos.</p>
       <div class="meta">
         <span class="chip">Visual Novel</span>
-        <span class="chip">Narrativa ramificada</span>
+        <span class="chip">Story</span>
       </div>
       <div class="actions">
-        <a class="btn btn-primary" href="juegos/juego6_bully_redention/index.html">Jugar</a>
-        <a class="btn btn-ghost" href="juegos/juego6_bully_redention/README.md">Detalles</a>
+        <a class="btn btn-primary" href="juegos/juego6_bully_redention/index.html">PLAY</a>
+        <a class="btn btn-ghost" href="juegos/juego6_bully_redention/README.md">INFO</a>
       </div>
     </div>
 
@@ -282,15 +285,15 @@
 </section>
 
 <footer>
-  © 2026 David — Game Development Portfolio · built with HTML / CSS / JS · deployed on GitHub Pages
+  &copy; 2026 DAVID.ARCADE SYSTEM · VINTAGE EDITION · GITHUB PAGES
 </footer>
 
 <script>
   const lines = [
-    "> booting portfolio_kernel v1.0",
-    "> loading modules from /juegos ...",
-    "> 6 of 6 modules OK",
-    "> ready."
+    "> INITIATING VINTAGE_OS v198X ...",
+    "> LOADING CARTRIDGES FROM /juegos ...",
+    "> ALL 6 ROMS VERIFIED [OK]",
+    "> READY TO PLAY."
   ];
   const el = document.getElementById('boot-log');
   let i = 0, j = 0;
@@ -302,10 +305,10 @@
       el.innerHTML = lines.slice(0, i).map(l => `<div>${l}</div>`).join('') +
                      `<div>${current.slice(0, j)}<span class="boot-cursor"></span></div>`;
       j++;
-      setTimeout(typeLine, 18);
+      setTimeout(typeLine, 30);
     } else {
       i++; j = 0;
-      setTimeout(typeLine, 220);
+      setTimeout(typeLine, 300);
     }
   }
   typeLine();
